@@ -1,0 +1,6 @@
+const fs=require('fs');const pct=(l,p)=>{const s=[...l].sort((a,b)=>a-b);return s[Math.min(s.length-1,Math.ceil(p*s.length)-1)]}
+const f=x=>x==null?'-':x.toFixed(0)
+for(const file of process.argv.slice(2)){const r=JSON.parse(fs.readFileSync(file));console.log('##',r.profile,'runs',r.runs,'throttle',r.throttle)
+for(const ph of ['hot','cold'])for(const[k,v]of Object.entries(r[ph]||{})){const m=key=>v.map(s=>s[key]);console.log(ph,k.padEnd(10),'vis p50/p95',f(pct(m('visibleMs'),.5)),f(pct(m('visibleMs'),.95)),'paint',f(pct(m('paintedMs'),.5)),f(pct(m('paintedMs'),.95)),'lt',pct(m('longTasks'),.5),'ltMs',f(pct(m('longTaskMs'),.5)),f(pct(m('longTaskMs'),.95)),'tails',v[0].tails,'cards',v[0].cards,'dom',v[0].domNodes)}
+for(const[k,v]of Object.entries(r.pagination||{})){const t=v.map(x=>x.ms),lt=v.map(x=>x.longTaskMs),mx=v.map(x=>x.maxLongTaskMs);console.log('pag',k,'total p50/p95',f(pct(t,.5)),f(pct(t,.95)),'ltMs',f(pct(lt,.5)),'maxLT',f(pct(mx,.5)),'pages',v[0].pages.length,'tails',v[0].tails,'cards',v[0].cards,'complete',v.every(x=>x.complete))}
+if(r.idleState)console.log('idle',r.idleState.requests,'req in',r.idleState.seconds,'s; ms p50/p95',pct(r.idleState.ms,.5),pct(r.idleState.ms,.95))}

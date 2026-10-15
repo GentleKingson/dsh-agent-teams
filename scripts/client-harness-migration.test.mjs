@@ -40,7 +40,12 @@ test('turn tail keeps each team summary on its create turn and supports multiple
   const prose = { key: 'd', kind: 'assistant-step', location: first.location }
   const unbound = { key: 'e', kind: 'agent-teams', location: { kind: 'session' } }
   const nodes = new Map([first, second, later, prose, unbound].map(node => [node.key, node]))
-  assert.deepEqual(teamCardsForTurn(nodes.values(), 1), [first, second])
-  assert.deepEqual(teamCardsForTurn(nodes.values(), 2), [later])
-  assert.deepEqual(teamCardsForTurn(nodes.values(), 3), [])
+  const turns = new Map([[1, ['a', 'd', 'b']], [2, ['c']]])
+  const chat = { nodes, locations: { getTurn: turn => turns.get(turn) ?? [] } }
+  assert.deepEqual(teamCardsForTurn(chat, 1), [first, second])
+  assert.deepEqual(teamCardsForTurn(chat, 2), [later])
+  assert.deepEqual(teamCardsForTurn(chat, 3), [])
+  // A key the index files under another turn never leaks into this one.
+  turns.set(2, ['c', 'a'])
+  assert.deepEqual(teamCardsForTurn(chat, 2), [later])
 })
