@@ -12,6 +12,7 @@
  */
 import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
+import { fileURLToPath } from 'node:url'
 import { agentTeamsCardDefinition } from '../../lib/client/agent-teams-card-definition.js'
 
 const require = createRequire(import.meta.url)
@@ -193,7 +194,7 @@ export function chatSnapshot(assembler, entries, hasMore = false) {
  * component it registers keyed by slot name.
  * @param {string} [file] - absolute path of the bundle.
  */
-export function loadPluginSlots(file = new URL('../../lib/client.js', import.meta.url).pathname) {
+export function loadPluginSlots(file = fileURLToPath(new URL('../../lib/client.js', import.meta.url))) {
   loadChatHost()
   const text = readFileSync(file, 'utf8')
   const local = createRequire(file)
