@@ -79,7 +79,9 @@ test('live appends, history pages and a reopened session keep the same cards', (
   }
   // Reopening the same log from scratch yields identical cards.
   const reopened = chatSnapshot(createAssembler(), log)
-  for (const turn of [3, 7]) assert.deepEqual(teamCardsForTurn(reopened, turn), teamCardsForTurn(full, turn))
+  // Separate builders own separate node objects; compare what the card renders.
+  const shown = (chat, turn) => teamCardsForTurn(chat, turn).map(({ key, anchorSeq, data }) => ({ key, anchorSeq, data }))
+  for (const turn of [3, 7]) assert.deepEqual(shown(reopened, turn), shown(full, turn))
 })
 
 test('lookup cost depends on the turn, not on the rest of the loaded session', () => {
