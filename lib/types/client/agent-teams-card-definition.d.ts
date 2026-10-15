@@ -11,7 +11,7 @@
  * @module dsh-agent-teams/client/card
  */
 import type { ConversationNodeDefinition } from '@deepseek-ai/dsh-client-ui-conversation/client';
-import type { ChatConversationViewNode } from '@deepseek-ai/dsh-client-ui-chat/client';
+import type { ChatConversationViewNode, ChatLocationNodeIndex, ChatNodeStore } from '@deepseek-ai/dsh-client-ui-chat/client';
 /** Final keyed Chat payload for the team summary card. */
 export interface AgentTeamsCardData {
     readonly teamId: string;
@@ -104,5 +104,14 @@ export declare function toolResultFailed(message: {
     readonly content: readonly unknown[];
     readonly isError?: boolean;
 }): boolean;
-/** Keep summaries tied to the create turn, including multiple teams in one turn. */
-export declare function teamCardsForTurn(nodes: Iterable<ChatConversationViewNode>, turn: number): ChatConversationViewNode[];
+/** The two live Chat snapshot readers a turn's cards need (stable for a builder's lifetime). */
+export interface ChatTurnReader {
+    readonly nodes: Pick<ChatNodeStore, 'get'>;
+    readonly locations: Pick<ChatLocationNodeIndex, 'getTurn'>;
+}
+/**
+ * Keep summaries tied to the create turn, including multiple teams in one turn.
+ * Reads only the turn's own keys from the host Location index, so a long
+ * session's other turns cost nothing per mounted turn tail.
+ */
+export declare function teamCardsForTurn(chat: ChatTurnReader, turn: number): ChatConversationViewNode[];

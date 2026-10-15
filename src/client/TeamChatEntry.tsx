@@ -18,8 +18,11 @@ export function TeamChatEntry({ sessionId, t }: PropsRuntime<'conversation.sessi
 }
 
 export function TeamTurnCard({ sessionId, turn, useChat, t, openMember }: PropsRuntime<'conversation.chat.turnTail'> & PropsLocale<'agentTeams'> & AgentTeamsCardInjected) {
+  // Both readers keep their identity across publications, so streaming frames
+  // do not re-render every turn tail; the parent re-renders it on turn changes.
   const nodes = useChat(snapshot => snapshot.nodes)
-  const cards = teamCardsForTurn(nodes.values(), turn.turn)
+  const locations = useChat(snapshot => snapshot.locations)
+  const cards = teamCardsForTurn({ nodes, locations }, turn.turn)
   if (turn.status !== 'closed' || cards.length === 0) return null
   return <div className={css.turnCards} data-team-turn-cards>{cards.map(node => <AgentTeamsSummary key={node.key}
     data={node.data as import('./agent-teams-card-definition.ts').AgentTeamsCardData}
